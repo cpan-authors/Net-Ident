@@ -727,7 +727,7 @@ S< >
 Some people do not like the way that ``proper'' object design is broken
 by letting one module add methods to another class. This is why, starting
 from version 1.20, you have to explicitly ask for this behaviour to occur.
-Personally, I this it's a compromise: if you want an object-oriented
+Personally, I think it's a compromise: if you want an object-oriented
 interface, then either you make a derived class, like a
 FileHandleThatCanPerformIdentLookups, and make sure all appropriate
 internal functions get wrappers that do the necessary re-blessing. Or,
@@ -797,7 +797,7 @@ waits for a connection on a port, tells you who you are and what time
 it is, and closes the connection again. The majority of the code will
 look very familiar if you just read L<perlipc>.
 
-Excersize this server by telnetting to it, preferably from a machine
+Exercise this server by telnetting to it, preferably from a machine
 that has a suitable ident daemon installed.
 
     #!/usr/bin/perl -w

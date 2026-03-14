@@ -24,11 +24,13 @@ jobs:
         perl-version: [latest]
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
       - name: Set up Perl
         run: |
           choco install strawberryperl
-          echo "##[add-path]C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin"
+          echo "C:\strawberry\c\bin" >> $env:GITHUB_PATH
+          echo "C:\strawberry\perl\site\bin" >> $env:GITHUB_PATH
+          echo "C:\strawberry\perl\bin" >> $env:GITHUB_PATH
       - name: perl -V
         run: perl -V
       - name: Makefile.PL
