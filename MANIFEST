@@ -6,6 +6,7 @@ Makefile.PL	feed to perl to get a makefile
 README.md	extract of the manpage, gives a brief overview
 t/0use.t	script to test "use Net::Ident"
 t/Ident.t	test script that actually makes ident lookups
+t/parse.t	unit tests for RFC1413 response parsing
 t/apache.t	script to test Net::Ident within apache and mod_perl
 t/compat.t	script to test compatibility-mode FH->ident_lookup
 t/hosts		Hosts to use for testing purposes
