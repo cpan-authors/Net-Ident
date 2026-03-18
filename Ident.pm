@@ -552,7 +552,7 @@ sub export_fail {
         }
     }
     if (@other) {
-        @other = SUPER::export_fail(@other);
+        @other = $pkg->SUPER::export_fail(@other);
     }
     @other;
 }
