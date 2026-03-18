@@ -348,8 +348,11 @@ sub ready {
 
                     # try to read as much data as possible.
                     $answer = '';
-                    defined sysread( $self->{fh}, $answer, 1000 )
+                    my $nread = sysread( $self->{fh}, $answer, 1000 );
+                    defined $nread
                       or die "= read returned error: $!\n";
+                    $nread
+                      or die "= remote end closed connection\n";
 
                     # append incoming data to total received
                     $self->{answer} .= $answer;
