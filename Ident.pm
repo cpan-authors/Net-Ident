@@ -214,8 +214,8 @@ sub newFromInAddr {
     # clear errno in case it contains EINPROGRESS
     $! = 0;
 
-    # mark the state of the connection
-    $self->{state} = 'connect';
+    # mark the state of the connection, consistent with new()
+    $self->{state} = $self->{error} ? 'error' : 'connect';
 
     # return a blessed reference
     bless $self, $class;
@@ -802,7 +802,7 @@ that has a suitable ident daemon installed.
 
     #!/usr/bin/perl -w
 
-    use Net::Ident;
+    use Net::Ident ':fh';
     # uncomment the below line if you want lots of debugging info
     # $Net::Ident::DEBUG = 2;
     use Socket;
@@ -858,7 +858,7 @@ away the object when you don't want it anymore.
 The constructor will always succeed. When it detects an error,
 however, it returns an object that "has already failed" internally. In
 this case, all methods will return C<undef> except for the C<geterror>
-method, wich will return the error message.
+method, which will return the error message.
 
 The timeout is I<not> implemented using C<alarm()>. In fact you can
 use C<alarm()> completely independent of this library, they do not
@@ -922,7 +922,7 @@ error. undef when there was no error.
 =back
 
 An asynchronous example implementing the above server in a multi-threaded
-way via select, is left as an excersize for the interested reader.
+way via select, is left as an exercise for the interested reader.
 
 =head1 DISCLAIMER
 

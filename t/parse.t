@@ -211,4 +211,26 @@ subtest 'getfh returns undef for error-state object' => sub {
     is($obj->getfh, undef, 'getfh undef when no fh');
 };
 
+# --- newFromInAddr error state consistency ---
+
+subtest 'newFromInAddr sets error state on failure' => sub {
+    # Use an IP not bound to any local interface — bind() will fail
+    # with "Cannot assign requested address"
+    my $bad_local  = Socket::sockaddr_in(12345, Socket::inet_aton("192.0.2.1"));
+    my $bad_remote = Socket::sockaddr_in(113,   Socket::inet_aton("192.0.2.2"));
+    my $obj = Net::Ident->newFromInAddr($bad_local, $bad_remote);
+
+    # Constructor should succeed (returns blessed object)
+    isa_ok($obj, 'Net::Ident', 'constructor succeeds even on error');
+
+    # But state should be 'error', not 'connect'
+    is($obj->{state}, 'error', 'state is error after bind failure');
+
+    # Error message should be set
+    like($obj->geterror, qr/bind failed/i, 'error message mentions bind');
+
+    # getfh should return undef (fh was deleted)
+    is($obj->getfh, undef, 'no filehandle after error');
+};
+
 done_testing;
