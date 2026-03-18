@@ -233,4 +233,16 @@ subtest 'newFromInAddr sets error state on failure' => sub {
     is($obj->getfh, undef, 'no filehandle after error');
 };
 
+# --- ready() method ---
+
+subtest 'ready returns 1 on repeated calls after success' => sub {
+    # This tests the fix for the dead-code bug where the elsif(state eq 'ready')
+    # was unreachable, causing subsequent ready() calls to fail instead of
+    # returning 1 as documented.
+    my $obj = make_ident(answer => '6191, 23 : USERID : UNIX : joe');
+    # State is already 'ready', so ready() should return 1 immediately
+    is($obj->ready(0), 1, 'first ready() call returns 1');
+    is($obj->ready(0), 1, 'second ready() call still returns 1');
+    is($obj->ready(1), 1, 'ready(blocking) also returns 1');
+};
 done_testing;

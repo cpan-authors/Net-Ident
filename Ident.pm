@@ -307,14 +307,14 @@ sub ready {
 
     print STDDBG "Net::Ident::ready blocking=" . ( $blocking ? "true\n" : "false\n" ) if $DEBUG > 1;
 
+    # exit immediately if ready returned 1 before.
+    if ( $self->{state} eq 'ready' ) {
+        return 1;
+    }
+
     # perform the query if not already done.
     if ( $self->{state} ne 'query' ) {
         $self->query or return undef;
-    }
-
-    # exit immediately if ready returned 1 before.
-    elsif ( $self->{state} eq 'ready' ) {
-        return 1;
     }
 
     # bomb out if no fh
