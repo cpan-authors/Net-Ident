@@ -245,4 +245,36 @@ subtest 'ready returns 1 on repeated calls after success' => sub {
     is($obj->ready(0), 1, 'second ready() call still returns 1');
     is($obj->ready(1), 1, 'ready(blocking) also returns 1');
 };
+# --- ready() EOF handling ---
+
+subtest 'ready returns undef when remote closes without newline' => sub {
+    # Regression test: sysread returning 0 (EOF) used to cause an infinite
+    # loop in blocking mode because defined(0) is true.
+    # We use socketpair to get a real filehandle that we can close one end of.
+    use Socket qw(PF_UNIX SOCK_STREAM);
+    my ($reader, $writer);
+    socketpair($reader, $writer, PF_UNIX, SOCK_STREAM, 0)
+        or plan skip_all => "socketpair not available: $!";
+
+    # Send partial data (no \r\n), then close the writer to trigger EOF
+    print $writer "6191, 23 : USERID : UNIX : joe";
+    close $writer;
+
+    # Build an object in 'query' state with the reader as its fh
+    my $obj = bless {
+        state      => 'query',
+        answer     => '',
+        fh         => $reader,
+        remoteport => 6191,
+        localport  => 23,
+        maxtime    => time + 5,  # safety timeout
+    }, 'Net::Ident';
+
+    # ready(1) should detect EOF and return undef, not loop forever
+    my $result = $obj->ready(1);
+    is($result, undef, 'ready returns undef on EOF without newline');
+    like($obj->geterror, qr/closed connection/i, 'error mentions closed connection');
+    close $reader;
+};
+
 done_testing;
