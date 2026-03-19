@@ -628,10 +628,8 @@ WriteMakefile(
     VERSION_FROM => 'Ident.pm',                                                       # finds $VERSION
     PREREQ_PM    => {
         Socket     => '0',
-        Fcntl      => '0',
         FileHandle => '0',
         Carp       => '0',
-        Config     => '0',
         Exporter   => '0',
     },
     dist       => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
