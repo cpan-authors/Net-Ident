@@ -170,7 +170,7 @@ sub newFromInAddr {
         my $identbind = sockaddr_in( $identport, $remoteip );
 
         # create a new FileHandle
-        $self->{fh} = new FileHandle;
+        $self->{fh} = FileHandle->new;
 
         # create a stream socket.
         socket( $self->{fh}, PF_INET, SOCK_STREAM, $tcpproto )
