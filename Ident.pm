@@ -4,10 +4,8 @@ use strict;
 use warnings;
 
 use Socket;
-use Fcntl;
 use FileHandle;
 use Carp;
-use Config;
 use Errno;
 require Exporter;
 
@@ -56,9 +54,6 @@ my $tcpproto = ( getprotobyname('tcp') )[2] || 6;
 
 # get identd port (default to 113).
 my $identport = ( getservbyname( 'ident', 'tcp' ) )[2] || 113;
-
-# what to use to make nonblocking sockets
-my $NONBLOCK = eval "&$Config{o_nonblock}";
 
 # turn a filehandle passed as a string, or glob, into a ref
 # private subroutine
@@ -181,7 +176,7 @@ sub newFromInAddr {
 
         # make it a non-blocking socket
         if ( $^O ne 'MSWin32' ) {
-            fcntl( $self->{fh}, F_SETFL, $NONBLOCK ) or die "= fcntl failed: $!\n";
+            $self->{fh}->blocking(0) or die "= set non-blocking failed: $!\n";
         }
 
         # connect it to the remote identd port, this can return EINPROGRESS.
