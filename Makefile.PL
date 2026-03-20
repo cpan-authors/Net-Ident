@@ -3,6 +3,7 @@
 #
 # $Id: Makefile.PL,v 1.57 1999/08/27 00:00:09 john Exp $
 
+use 5.010;
 use strict;
 use warnings;
 
