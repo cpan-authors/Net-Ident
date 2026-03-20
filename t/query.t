@@ -2,6 +2,7 @@
 # Tests the ident protocol query phase using socketpair,
 # without needing a running identd or network access.
 
+use 5.010;
 use strict;
 use warnings;
 use Test::More;
