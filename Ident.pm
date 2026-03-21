@@ -328,7 +328,11 @@ sub ready {
             # zero timeout for non-blocking
             $timeout = 0 unless $blocking;
 
-            # wait for something
+            # wait for something readable.
+            # Note: do NOT add an exception mask to this select() call.
+            # Solaris reports spurious ESPIPE exceptions on PF_UNIX
+            # socketpair handles, which breaks callers.  The ident
+            # protocol never uses TCP OOB data.  (GH #19, #20, #27)
             $rmask = '';
             vec( $rmask, $fileno, 1 ) = 1;
             if ( select( $rmask, undef, undef, $timeout ) ) {

@@ -4,6 +4,7 @@ Revision history for Perl extension Net::Ident.
     [Bug Fixes]
     - GH #19, PR #23 - Remove select() exception mask checks that fail on Solaris
     - GH #20, PR #24 - Remove select() exception mask that fails on Solaris socketpair
+    - GH #27 - Handle ESPIPE from sysread on Solaris socketpair as EOF
     - GH #18, PR #22 - Add use 5.010 for clean failure on Perl < 5.10
     - GH #17, PR #21 - Make t/query.t portable to Windows
 
