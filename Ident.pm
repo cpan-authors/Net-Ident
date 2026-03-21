@@ -339,8 +339,13 @@ sub ready {
                     # try to read as much data as possible.
                     $answer = '';
                     my $nread = sysread( $self->{fh}, $answer, 1000 );
-                    defined $nread
-                      or die "= read returned error: $!\n";
+                    if ( !defined $nread ) {
+                        # On Solaris, sysread on a socketpair may
+                        # return ESPIPE instead of 0 for EOF.
+                        die "= remote end closed connection\n"
+                          if $!{ESPIPE};
+                        die "= read returned error: $!\n";
+                    }
                     $nread
                       or die "= remote end closed connection\n";
 

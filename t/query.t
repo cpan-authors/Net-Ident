@@ -236,8 +236,9 @@ subtest 'end-to-end: auto-query from ready' => sub {
         exit 0;
     }
 
-    # parent
-    close $server;    # close server end in parent
+    # parent — do NOT close $server before ready().  On Solaris,
+    # closing one end of a PF_UNIX socketpair can invalidate the
+    # other end even across fork.
     my $ready = $obj->ready(1);
     is( $ready, 1, 'ready auto-queries and succeeds' );
 
@@ -245,6 +246,7 @@ subtest 'end-to-end: auto-query from ready' => sub {
     is( $user, 'autouser', 'username from auto-queried flow' );
 
     waitpid( $pid, 0 );
+    close $server;
 };
 
 done_testing;
