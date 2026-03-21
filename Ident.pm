@@ -342,8 +342,10 @@ sub ready {
                     if ( !defined $nread ) {
                         # On Solaris, sysread on a socketpair may
                         # return ESPIPE instead of 0 for EOF.
+                        # On Windows, close() without shutdown() sends
+                        # TCP RST, causing ECONNRESET on the peer.
                         die "= remote end closed connection\n"
-                          if $!{ESPIPE};
+                          if $!{ESPIPE} || $!{ECONNRESET};
                         die "= read returned error: $!\n";
                     }
                     $nread
