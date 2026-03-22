@@ -1,17 +1,5 @@
 Revision history for Perl extension Net::Ident.
 
-1.28 (development)
-    [Bug Fixes]
-    - GH #26, PR #33 - Handle ECONNRESET from sysread on Windows
-    - GH #28, PR #31 - Handle ESPIPE from sysread on Solaris socketpairs
-    - GH #29, PR #30 - Add use 5.010 to remaining test files for Perl 5.8.x
-      protection
-
-    [Maintenance]
-    - PR #25 - Add use 5.010 to Makefile.PL for clean failure on old perls
-    - Fix cpanfile: remove stale Fcntl/Config deps, add missing Errno
-    - Add Errno to PREREQ_PM in Makefile.PL
-
 1.27 2026-03-20
     [Bug Fixes]
     - GH #19, PR #23 - Remove select() exception mask checks that fail on Solaris
