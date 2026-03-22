@@ -633,6 +633,7 @@ WriteMakefile(
         Socket     => '0',
         FileHandle => '0',
         Carp       => '0',
+        Errno      => '0',
         Exporter   => '0',
     },
     TEST_REQUIRES => {
