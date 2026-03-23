@@ -1,7 +1,7 @@
 /Makefile
 /blib/
 /pm_to_blib
-/Net-Ident-0*
+/Net-Ident-*/
 /.DS_Store
 /Makefile.old
 /cover_db/
