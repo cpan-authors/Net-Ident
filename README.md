@@ -381,6 +381,10 @@ can distribute and use this program under the same terms as Perl itself.
     Dunno, somewhere 1994. First neat collection of dusty routines put in
     a package.
 
+# AI POLICY
+
+This project uses AI-assisted workflows. See [AI_POLICY.md](AI_POLICY.md) for full details on how AI tools are used, what role humans play, and our commitment to transparency.
+
 # SEE ALSO
 
 [Socket](https://metacpan.org/pod/Socket)
