@@ -598,12 +598,12 @@ Net::Ident - lookup the username on the remote end of a TCP/IP connection
 =head1 SYNOPSIS
 
  use Net::Ident;
- 
+
  $username = Net::Ident::lookup(SOCKET, $timeout);
 
  $username = Net::Ident::lookupFromInAddr($localsockaddr,
 					   $remotesockaddr, $timeout);
- 
+
  $obj = Net::Ident->new(SOCKET, $timeout);
  $obj = Net::Ident->newFromInAddr($localsockaddr, $remotesockaddr,
  					$timeout);
@@ -613,9 +613,9 @@ Net::Ident - lookup the username on the remote end of a TCP/IP connection
  ($username, $opsys, $error) = $obj->username;
  $fh = $obj->getfh;
  $txt = $obj->geterror;
- 
+
  use Net::Ident 'ident_lookup';
- 
+
  $username = ident_lookup(SOCKET, $timeout);
 
  use Net::Ident 'lookupFromInAddr';
@@ -702,27 +702,7 @@ ie. something which is either B<connect()>ed or B<accept()>ed. The optional
 parameter specifies the timeout in seconds, just like the timeout parameter
 of the function calls above.
 
-=cut
-# add a paragraph about compatibility mode if appropriate. The non-breaking
-# spaces are to force a new paragraph.
-# @@12 s/^#// @@
-#
-#=pod
-#
-#S< >
-#
-#Adding the B<ident_lookup> method to the B<FileHandle> class used to be
-#automatic in previous version of B<Net::Ident>. During the installation
-#of this B<Net::Ident> package, the system administrator choose to install
-#it in a compatible way, meaning that on this machine, the B<ident_lookup>
-#method is automatically added if you use just C<use Net::Ident;>
-#
-#=cut
-# end of extra paragraph
-
 =pod
-
-S< >
 
 Some people do not like the way that ``proper'' object design is broken
 by letting one module add methods to another class. This is why, starting
@@ -807,9 +787,9 @@ that has a suitable ident daemon installed.
     # $Net::Ident::DEBUG = 2;
     use Socket;
     use strict;
-    
+
     sub logmsg { print "$0 $$: @_ at ", scalar localtime, "\n" }
-    
+
     my $port = shift || 2345;
     my $proto = getprotobyname('tcp');
     socket(Server, PF_INET, SOCK_STREAM, $proto) or die "socket: $!";
@@ -817,20 +797,20 @@ that has a suitable ident daemon installed.
       die "setsockopt: $!";
     bind(Server, sockaddr_in($port, INADDR_ANY)) or die "bind: $!";
     listen(Server,SOMAXCONN) or die "listen: $!";
-    
+
     logmsg "server started on port $port";
-    
+
     my $paddr;
-    
+
     for ( ; $paddr = accept(Client,Server); close Client) {
 	my($port,$iaddr) = sockaddr_in($paddr);
 	my $name = gethostbyaddr($iaddr,AF_INET) || inet_ntoa($iaddr);
 	logmsg "connection from $name [" . inet_ntoa($iaddr) .
 	  "] at port $port";
-       
+
 	my $username = Client->ident_lookup(30) || "~unknown";
 	logmsg "User at $name:$port is $username";
-        
+
 	print Client "Hello there, $username\@$name, it's now ",
 	   scalar localtime, "\n";
     }
