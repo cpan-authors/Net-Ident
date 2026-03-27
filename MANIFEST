@@ -17,3 +17,4 @@ t/hosts				Hosts to use for testing purposes
 t/Ident.t			test script that actually makes ident lookups
 t/parse.t			unit tests for RFC1413 response parsing
 t/query.t			unit tests for query() method and end-to-end flow
+t/timeout.t			tests for timeout behavior in query() and ready()
