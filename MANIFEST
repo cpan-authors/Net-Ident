@@ -15,6 +15,7 @@ t/constructor.t			tests for new() and _passfh filehandle resolution
 t/export.t			tests for export hooks (:fh, :apache, :debug tags)
 t/hosts				Hosts to use for testing purposes
 t/Ident.t			test script that actually makes ident lookups
+t/lookup.t			tests for lookup() and lookupFromInAddr() functions
 t/parse.t			unit tests for RFC1413 response parsing
 t/query.t			unit tests for query() method and end-to-end flow
 t/timeout.t			tests for timeout behavior in query() and ready()
