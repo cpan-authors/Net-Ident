@@ -591,6 +591,8 @@ sub _add_apache_method {
 
 __END__
 
+=for markdown [![testsuite](https://github.com/cpan-authors/Net-Ident/actions/workflows/testsuite.yml/badge.svg)](https://github.com/cpan-authors/Net-Ident/actions/workflows/testsuite.yml)
+
 =head1 NAME
 
 Net::Ident - lookup the username on the remote end of a TCP/IP connection
