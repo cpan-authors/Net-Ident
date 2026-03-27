@@ -2,7 +2,6 @@
 Changes				revision history
 cpanfile
 Ident.pm			the module itself, contains pod
-INSTALL				installation instructions
 Makefile.PL			feed to perl to get a makefile
 MANIFEST
 README.md			extract of the manpage, gives a brief overview
