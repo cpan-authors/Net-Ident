@@ -922,113 +922,11 @@ Jan-Pieter Cornet, <johnpc@xs4all.nl>
 Copyright (c) 1995, 1997, 1999 Jan-Pieter Cornet. All rights reserved. You
 can distribute and use this program under the same terms as Perl itself.
 
-=head1 REVISION HISTORY
-
-=over 4
-
-=item V1.20
-
-August 2, 1999. Finally implemented the long-asked-for lookupFromInAddr
-method. Other changes:
-
-=over 1
-
-=item *
-
-No longer imports ident_lookup into package FileHandle by default, unless you
-explicitly ask for it (or unless you installed it that way during compile time
-for compatibility reasons).
-
-=item *
-
-Allow adding an ident_lookup method to the Apache::Connection class, as a
-convenience for mod_perl script writers.
-
-=item *
-
-Rewritten tests, included test for the Apache::Connection method by actually
-launching apache and performing ident lookups from within mod_perl.
-
-=item *
-
-Moved selection of FileHandle/IO::Handle class out of the Makefile.PL. 
-PAUSE/CPAN didn't really like modules that weren't present in the
-distribution, and it didn't allow you to upgrade your perl version
-underneath.
-
-=back
-
-=item V1.11
-
-Jan 15th, 1997. Several bugfixes, and some slight interface changes:
-
-=over 1
-
-=item *
-
-constructor now called C<new> instead of C<initconnect>, constructor
-now always succeeds, if something has gone wrong in the constructor,
-all methods return undef (like C<getfh>), except for C<geterror>, which
-returns the error message.
-
-=item *
-
-The recommended exported function is now C<ident_lookup> instead of
-C<lookup>
-
-=item *
-
-Fixed a bug: now chooses O_NDELAY or O_NONBLOCK from %Config, instead
-of hardcoding O_NDELAY (argh)
-
-=item *
-
-Adding a method to FileHandle would break in perl5.004, it should get
-added in IO::Handle. Added intelligence in Makefile.PL to detect that
-and choose the appropriate package.
-
-=item *
-
-Miscellaneous pod fixes.
-
-=item *
-
-Test script now actually tests multiple different things.
-
-=back
-
-=item V1.10
-
-Jan 11th, 1997. Complete rewrite for perl5. Requires perl5.002 or up.
-
-=item V1.02
-
-Jan 20th, 1995. Quite a big bugfix: "connection refused" to the ident
-port would kill the perl process with a SIGPIPE if the connect didn't
-immediately signal it (ie. almost always on remote machines). Also
-recognises the perl5 package separator :: now on fully qualified
-descriptors. This is still perl4-compatible, a perl5- only version
-would require a rewrite to make it neater.  Fixed the constants
-normally found in .ph files (but you shouldn't use those anyway).
-
-[this release wasn't called B<Net::Ident>, of course, it was called
-B<rfc931.pl>]
-
-=item V1.01
-
-Around November 1994. Removed a spurious B<perl5 -w> complaint. First
-public release.  Has been tested against B<perl 5.000> and B<perl 4.036>.
-
-=item V1.00
-
-Dunno, somewhere 1994. First neat collection of dusty routines put in
-a package.
-
-=back
-
 =head1 SEE ALSO
 
-L<Socket>
+L<Socket>,
 RFC1413, RFC931
+
+The F<Changes> file in the distribution contains the full revision history.
 
 =cut

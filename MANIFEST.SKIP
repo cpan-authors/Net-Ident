@@ -5,6 +5,7 @@
 ^Makefile$
 ^Makefile\.old$
 ^CLAUDE\.md$
+^AI_POLICY\.md$
 ^blib/
 ^pm_to_blib$
 ^Net-Ident-
