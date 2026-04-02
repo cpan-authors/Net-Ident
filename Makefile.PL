@@ -29,6 +29,12 @@ WriteMakefile(
     clean => { FILES => "Net-Ident-*" },
     META_MERGE => {
         'meta-spec' => { version => 2 },
+        provides => {
+            'Net::Ident' => {
+                file    => 'Ident.pm',
+                version => MM->parse_version('Ident.pm'),
+            },
+        },
         resources   => {
             license    => ['https://dev.perl.org/licenses/'],
             bugtracker => {
