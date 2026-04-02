@@ -40,7 +40,7 @@ _export_hooks();
 # for compatibility mode, uncomment the next line
 # our @EXPORT = qw(_export_hook_fh);
 
-our $VERSION = "1.29";
+our $VERSION = "1.31";
 
 our $DEBUG = 0;
 *STDDBG = *STDERR;
