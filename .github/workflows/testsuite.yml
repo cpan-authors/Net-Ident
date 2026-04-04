@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           cpanfile: "cpanfile"
       - name: Makefile.PL
@@ -41,11 +41,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           cpanfile: "cpanfile"
       - name: Makefile.PL
@@ -61,7 +61,7 @@ jobs:
       perl-versions: ${{ steps.action.outputs.perl-versions }}
     steps:
       - id: action
-        uses: perl-actions/perl-versions@v1
+        uses: perl-actions/perl-versions@v2
         with:
           since-perl: v5.10
           with-devel: true
@@ -85,11 +85,11 @@ jobs:
     container: perldocker/perl-tester:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           sudo: false
           cpanfile: "cpanfile"
@@ -98,7 +98,7 @@ jobs:
       - run: make test
 
   macOS:
-    needs: [ubuntu, linux, windows]
+    needs: [ubuntu]
     runs-on: macOS-latest
 
     env:
@@ -108,13 +108,13 @@ jobs:
       RELEASE_TESTING: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Perl
         run: brew install perl
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           sudo: false
           cpanfile: "cpanfile"
@@ -123,7 +123,7 @@ jobs:
       - run: make test
 
   windows:
-    needs: [ubuntu, linux]
+    needs: [ubuntu]
     runs-on: windows-latest
 
     env:
@@ -131,7 +131,7 @@ jobs:
       AUTOMATED_TESTING: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Perl
         run: |
           choco install strawberryperl
@@ -144,7 +144,7 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           sudo: false
           cpanfile: "cpanfile"
