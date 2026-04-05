@@ -260,8 +260,9 @@ sub query {
 
         # write the query. Ignore the chance that such a short
         # write will be fragmented.
-        syswrite( $self->{fh}, $query, length $query ) == length $query
-          or die "= fragmented write on socket: $!\n";
+        my $written = syswrite( $self->{fh}, $query, length $query );
+        defined $written && $written == length $query
+          or die "= syswrite on socket: $!\n";
     };
     if ( $@ =~ /^= (.*)/ ) {
 

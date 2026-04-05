@@ -151,6 +151,44 @@ subtest 'query on error-state object returns undef' => sub {
     is( $obj->query, undef, 'query returns undef for error-state object' );
 };
 
+subtest 'query handles syswrite failure without uninitialized warning' => sub {
+    # If syswrite returns undef (error), query() should die cleanly
+    # without triggering a "Use of uninitialized value" warning.
+    my ( $client, $server ) = make_socketpair();
+
+    my $obj = bless {
+        state      => 'connect',
+        fh         => $client,
+        remoteport => 6191,
+        localport  => 23,
+    }, 'Net::Ident';
+
+    # Close the peer end so the socket is still open but writes will fail.
+    # Then shut down the client's write side to force syswrite to fail.
+    close $server;
+    shutdown( $client, 1 );
+
+    # Ignore SIGPIPE so syswrite returns EPIPE instead of killing us.
+    # (Many network servers do this globally.)
+    local $SIG{PIPE} = 'IGNORE';
+
+    # Capture warnings to verify no "uninitialized" noise
+    my @warnings;
+    local $SIG{__WARN__} = sub { push @warnings, @_ };
+
+    my $result = $obj->query;
+
+    # The error might come from getsockopt(SO_ERROR) detecting the broken
+    # connection, or from syswrite itself — either way, query must fail
+    # cleanly without an uninitialized-value warning.
+    is( $result, undef, 'query returns undef on write failure' );
+
+    my $uninit = grep { /uninitialized/i } @warnings;
+    is( $uninit, 0, 'no uninitialized value warning from write failure' );
+
+    ok( defined $obj->geterror, 'error message set after write failure' );
+};
+
 # --- Full end-to-end: query → ready → username ---
 
 subtest 'end-to-end: query then ready then username' => sub {
