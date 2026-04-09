@@ -269,6 +269,7 @@ sub query {
         # return false, try to preserve errno
         local ($!);
         $self->{error} = "Net::Ident::query: $1\n";
+        $self->{state} = 'error';
         print STDDBG $self->{error} if $DEBUG;
 
         # this deletes the FileHandle, which gets closed,
@@ -384,6 +385,7 @@ sub ready {
         # return undef, try to preserve errno
         local ($!);
         $self->{error} = "Net::Ident::ready: $1\n";
+        $self->{state} = 'error';
         print STDDBG $self->{error} if $DEBUG;
 
         # this deletes the FileHandle, which gets closed,

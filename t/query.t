@@ -138,6 +138,7 @@ subtest 'query returns undef when called in wrong state' => sub {
     my $result = $obj->query;
     is( $result, undef, 'query returns undef when state is not connect' );
     like( $obj->geterror, qr/wrong order/i, 'error mentions wrong order' );
+    is( $obj->{state}, 'error', 'state transitions to error on failure' );
 
     close $server;
 };

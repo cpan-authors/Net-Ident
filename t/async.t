@@ -262,6 +262,7 @@ subtest 'ready returns undef on EOF' => sub {
     my $result = $obj->ready(1);
     is($result, undef, 'ready returns undef on immediate EOF');
     like($obj->geterror, qr/closed connection/i, 'error mentions closed connection');
+    is($obj->{state}, 'error', 'state transitions to error on EOF');
 };
 
 subtest 'ready returns undef on EOF after partial data' => sub {
@@ -290,6 +291,7 @@ subtest 'ready returns undef when remote sends too much data' => sub {
     my $result = $obj->ready(1);
     is($result, undef, 'ready returns undef on babbling remote');
     like($obj->geterror, qr/babbling/i, 'error mentions babbling');
+    is($obj->{state}, 'error', 'state transitions to error on babble');
 };
 
 
