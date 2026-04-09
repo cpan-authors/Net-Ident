@@ -56,6 +56,55 @@ my $tcpproto = ( getprotobyname('tcp') )[2] || 6;
 # get identd port (default to 113).
 my $identport = ( getservbyname( 'ident', 'tcp' ) )[2] || 113;
 
+# check for IPv6 support in Socket.pm (available since Socket 1.95 / Perl 5.14)
+my $has_ipv6 = defined &Socket::unpack_sockaddr_in6;
+
+# unpack a sockaddr structure, detecting IPv4 vs IPv6.
+# returns ($port, $ip_binary, $family)
+sub _unpack_sockaddr {
+    my ($addr) = @_;
+
+    # detect address family from the first 2 bytes of the packed sockaddr
+    my $family = unpack( 'S', $addr );
+
+    if ( $family == AF_INET ) {
+        my ( $port, $ip ) = sockaddr_in($addr);
+        return ( $port, $ip, AF_INET );
+    }
+    elsif ( defined &AF_INET6 && $family == AF_INET6() ) {
+        $has_ipv6 or die "= IPv6 sockaddr detected but Socket.pm lacks IPv6 support\n";
+        my ( $port, $ip ) = Socket::unpack_sockaddr_in6($addr);
+        return ( $port, $ip, AF_INET6() );
+    }
+    else {
+        die "= unsupported address family: $family\n";
+    }
+}
+
+# pack a sockaddr structure given port, ip, and family.
+sub _pack_sockaddr {
+    my ( $port, $ip, $family ) = @_;
+
+    if ( $family == AF_INET ) {
+        return sockaddr_in( $port, $ip );
+    }
+    else {
+        return Socket::pack_sockaddr_in6( $port, $ip );
+    }
+}
+
+# format an address for debug output
+sub _format_addr {
+    my ( $port, $ip, $family ) = @_;
+
+    if ( $family == AF_INET ) {
+        return inet_ntoa($ip) . ":$port";
+    }
+    else {
+        return "[" . Socket::inet_ntop( AF_INET6(), $ip ) . "]:$port";
+    }
+}
+
 # turn a filehandle passed as a string, or glob, into a ref
 # private subroutine
 sub _passfh ($) {
@@ -143,36 +192,45 @@ sub newFromInAddr {
     my ( $class, $localaddr, $remoteaddr, $timeout ) = @_;
     my $self = {};
 
-    print STDDBG "Net::Ident::newFromInAddr localaddr=", sub { inet_ntoa( $_[1] ) . ":$_[0]" }
-      ->( sockaddr_in($localaddr) ), ", remoteaddr=", sub { inet_ntoa( $_[1] ) . ":$_[0]" }
-      ->( sockaddr_in($remoteaddr) ), ", timeout=", defined $timeout ? $timeout : "<undef>", "\n"
-      if $DEBUG > 1;
-
     eval {
-        # unpack addresses and store in
-        my ( $localip, $remoteip );
-        ( $self->{localport},  $localip )  = sockaddr_in($localaddr);
-        ( $self->{remoteport}, $remoteip ) = sockaddr_in($remoteaddr);
+        # unpack addresses, detecting IPv4 vs IPv6
+        my ( $localip, $remoteip, $localfamily, $remotefamily );
+        ( $self->{localport},  $localip,  $localfamily )  = _unpack_sockaddr($localaddr);
+        ( $self->{remoteport}, $remoteip, $remotefamily ) = _unpack_sockaddr($remoteaddr);
+
+        $localfamily == $remotefamily
+          or die "= local and remote address family mismatch\n";
+
+        my $family = $localfamily;
+
+        print STDDBG "Net::Ident::newFromInAddr localaddr=",
+          _format_addr( $self->{localport}, $localip, $family ),
+          ", remoteaddr=",
+          _format_addr( $self->{remoteport}, $remoteip, $family ),
+          ", timeout=", defined $timeout ? $timeout : "<undef>", "\n"
+          if $DEBUG > 1;
 
         # create a local binding port. We cannot bind to INADDR_ANY, it has
         # to be bind (bound?) to the same IP address as the connection we're
         # interested in on machines with multiple IP addresses
-        my $localbind = sockaddr_in( 0, $localip );
+        my $localbind = _pack_sockaddr( 0, $localip, $family );
 
         # store max time
         $self->{maxtime} = defined($timeout) ? time + $timeout : undef;
 
         # create a remote connect point
-        my $identbind = sockaddr_in( $identport, $remoteip );
+        my $identbind = _pack_sockaddr( $identport, $remoteip, $family );
 
         # create a new FileHandle
         $self->{fh} = FileHandle->new;
 
-        # create a stream socket.
-        socket( $self->{fh}, PF_INET, SOCK_STREAM, $tcpproto )
+        # create a stream socket, using the same address family as the
+        # original connection (PF_INET for IPv4, PF_INET6 for IPv6)
+        my $pf = $family == AF_INET ? PF_INET : PF_INET6();
+        socket( $self->{fh}, $pf, SOCK_STREAM, $tcpproto )
           or die "= socket failed: $!\n";
 
-        # bind it to the same IP number as the local end of THESOCK
+        # bind it to the same IP address as the local end of THESOCK
         bind( $self->{fh}, $localbind ) or die "= bind failed: $!\n";
 
         # make it a non-blocking socket
@@ -505,10 +563,15 @@ sub lookup ($;$) {
 sub lookupFromInAddr ($$;$) {
     my ( $localaddr, $remoteaddr, $timeout ) = @_;
 
-    print STDDBG "Net::Ident::lookupFromInAddr localaddr=", sub { inet_ntoa( $_[1] ) . ":$_[0]" }
-      ->( sockaddr_in($localaddr) ), ", remoteaddr=", sub { inet_ntoa( $_[1] ) . ":$_[0]" }
-      ->( sockaddr_in($remoteaddr) ), ", timeout=", defined $timeout ? $timeout : "<undef>", "\n"
-      if $DEBUG > 1;
+    if ( $DEBUG > 1 ) {
+        my ( $lport, $lip, $lfam ) = _unpack_sockaddr($localaddr);
+        my ( $rport, $rip, $rfam ) = _unpack_sockaddr($remoteaddr);
+        print STDDBG "Net::Ident::lookupFromInAddr localaddr=",
+          _format_addr( $lport, $lip, $lfam ),
+          ", remoteaddr=",
+          _format_addr( $rport, $rip, $rfam ),
+          ", timeout=", defined $timeout ? $timeout : "<undef>", "\n";
+    }
 
     Net::Ident->newFromInAddr( $localaddr, $remoteaddr, $timeout )->username;
 }
@@ -643,6 +706,11 @@ requires the remote site to run a daemon (often called B<identd>) to
 provide the requested information, so it is not always available for
 all TCP/IP connections.
 
+Both IPv4 and IPv6 connections are supported. The address family is
+detected automatically from the socket. IPv6 requires C<Socket> version
+1.95 or later (included with Perl 5.14+). On older systems without
+IPv6 socket support, only IPv4 connections are handled.
+
 =head1 DESCRIPTION
 
 You can either use the simple interface, which does one ident
@@ -681,12 +749,15 @@ TCP connection timeouts).
 
 B<Net::Ident::lookupFromInAddr> is an exportable function (via C<@EXPORT_OK>).
 The arguments are the local and remote address of a connection, in packed
-``sockaddr'' format (the kind of thing that C<getsockname> returns). The
-optional timeout value specifies a timeout in seconds, see also the
-description of the timeout value in the C<Net::Ident::lookup> section above.
+``sockaddr'' format (the kind of thing that C<getsockname> returns). Both
+C<sockaddr_in> (IPv4) and C<sockaddr_in6> (IPv6) formats are accepted;
+the address family is detected automatically. The optional timeout value
+specifies a timeout in seconds, see also the description of the timeout
+value in the C<Net::Ident::lookup> section above.
 
 The given localaddr B<must> have the IP address of a local interface of
-the machine you're calling this on, otherwise an error will occur.
+the machine you're calling this on, and both addresses B<must> be of the
+same address family (both IPv4 or both IPv6), otherwise an error will occur.
 
 You can use this function whenever you have a local and remote socket address,
 but no direct access to the socket itself. For example, because you are
