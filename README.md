@@ -50,6 +50,11 @@ requires the remote site to run a daemon (often called **identd**) to
 provide the requested information, so it is not always available for
 all TCP/IP connections.
 
+Both IPv4 and IPv6 connections are supported. The address family is
+detected automatically from the socket. IPv6 requires `Socket` version
+1.95 or later (included with Perl 5.14+). On older systems without
+IPv6 socket support, only IPv4 connections are handled.
+
 # DESCRIPTION
 
 You can either use the simple interface, which does one ident
@@ -86,12 +91,15 @@ calling method, these routines behave exactly the same.
 
     **Net::Ident::lookupFromInAddr** is an exportable function (via `@EXPORT_OK`).
     The arguments are the local and remote address of a connection, in packed
-    \`\`sockaddr'' format (the kind of thing that `getsockname` returns). The
-    optional timeout value specifies a timeout in seconds, see also the
-    description of the timeout value in the `Net::Ident::lookup` section above.
+    \`\`sockaddr'' format (the kind of thing that `getsockname` returns). Both
+    `sockaddr_in` (IPv4) and `sockaddr_in6` (IPv6) formats are accepted;
+    the address family is detected automatically. The optional timeout value
+    specifies a timeout in seconds, see also the description of the timeout
+    value in the `Net::Ident::lookup` section above.
 
     The given localaddr **must** have the IP address of a local interface of
-    the machine you're calling this on, otherwise an error will occur.
+    the machine you're calling this on, and both addresses **must** be of the
+    same address family (both IPv4 or both IPv6), otherwise an error will occur.
 
     You can use this function whenever you have a local and remote socket address,
     but no direct access to the socket itself. For example, because you are
