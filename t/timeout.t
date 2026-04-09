@@ -58,6 +58,7 @@ subtest 'query() times out when maxtime already expired' => sub {
     is( $result, undef, 'query() returns undef on timeout' );
     like( $obj->geterror, qr/timed out/i, 'error mentions timeout' );
     is( $obj->getfh, undef, 'fh cleaned up after timeout' );
+    is( $obj->{state}, 'error', 'state transitions to error on timeout' );
 
     close $server;
 };
@@ -85,6 +86,7 @@ subtest 'ready() times out when maxtime already expired (blocking)' => sub {
     is( $result, undef, 'ready(1) returns undef on timeout' );
     like( $obj->geterror, qr/timeout/i, 'error mentions timeout' );
     is( $obj->getfh, undef, 'fh cleaned up after timeout' );
+    is( $obj->{state}, 'error', 'state transitions to error on timeout' );
 
     close $server;
 };
