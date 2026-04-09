@@ -64,8 +64,10 @@ my $has_ipv6 = defined &Socket::unpack_sockaddr_in6;
 sub _unpack_sockaddr {
     my ($addr) = @_;
 
-    # detect address family from the first 2 bytes of the packed sockaddr
-    my $family = unpack( 'S', $addr );
+    # detect address family portably — on BSD/macOS, struct sockaddr has
+    # a sa_len prefix byte before sa_family, so raw unpack('S') gives wrong
+    # results.  Socket::sockaddr_family() handles both layouts correctly.
+    my $family = Socket::sockaddr_family($addr);
 
     if ( $family == AF_INET ) {
         my ( $port, $ip ) = sockaddr_in($addr);
