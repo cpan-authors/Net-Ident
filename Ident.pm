@@ -76,7 +76,8 @@ sub _passfh ($) {
             # search for calling package
             my $depth = 1;
             my $otherpkg;
-            $depth++ while ( ( $otherpkg = caller($depth) ) eq $mypkg );
+            $depth++ while defined( $otherpkg = caller($depth) ) && $otherpkg eq $mypkg;
+            $otherpkg //= 'main';
             print STDDBG "We are called from package $otherpkg\n" if $DEBUG;
             $fh = "${otherpkg}::$fh";
             print STDDBG "passed fh now fully qualified: $fh\n" if $DEBUG;
