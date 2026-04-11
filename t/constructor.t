@@ -73,6 +73,19 @@ use IO::Socket::INET;
     close($orig);
 }
 
+# 6. Bare glob via lookup() — exercises deeper caller-walking
+#    (lookup → new → _passfh: 3 Net::Ident frames before main)
+{
+    open( my $orig, '<', $0 ) or die "cannot open $0: $!";
+    no strict 'refs';
+    *{"main::TESTFH3"} = $orig;
+    use strict 'refs';
+
+    my $user = Net::Ident::lookup( 'TESTFH3', 1 );
+    is( $user, undef, 'lookup("TESTFH3"): undef (not a socket, but no crash)' );
+    close($orig);
+}
+
 # --- Error-state object: all methods return undef except geterror ---
 {
     my $obj = Net::Ident->new( undef, 5 );
